@@ -53,7 +53,7 @@ julia> Discrete(3)
  P = [0.3333333333333333, 0.3333333333333333, 0.3333333333333333]
 ```
 """ 
-Discrete(n::Int64) = Discrete(Vector{Float64}(1.0 / n, n)) #create a Discrete object with logP = [0.0 for n times]
+Discrete(n::Int64) = Discrete(Vector{Float64}(0, n)) #create a Discrete object with logP = [0 for n times]
 
 """
     *(p::Discrete{T}, q::Float64) -> Discrete{T}
@@ -108,7 +108,11 @@ Should compute the logsumexp function for the respective vector:
 Remember: You can use the . operator to apply functions like exp element wise to each element of an iterable.
 """
 function logsumexp(a::Vector{Float64})
-    ##TODO##
+    max = max(a)
+    sum = 0
+    for i in eachindex(a)
+        sum += exp(a[i]-max)
+    logsum = sum + max
 end
 
 """
@@ -137,7 +141,7 @@ julia> ℙ(Discrete([0.0, 0.0]))
 """ 
 function ℙ(p::Discrete)
     d::Vector{Float64}(nothing, length(p.logP))
-    denominator::Float64
+    denominator = 0
     for i in eachindex(p.logP)
         denominator += exp(logP[i])
     for j in eachindex(p.logP)
