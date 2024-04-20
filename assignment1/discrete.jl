@@ -136,7 +136,13 @@ julia> ℙ(Discrete([0.0, 0.0]))
 ```
 """ 
 function ℙ(p::Discrete)
-    
+    d::Vector{Float64}(nothing, length(p.logP))
+    denominator::Float64
+    for i in eachindex(p.logP)
+        denominator += exp(logP[i])
+    for j in eachindex(p.logP)
+        push!(d, exp(p.logP[i])/ denominator)
+    return d
 end
 
 """
