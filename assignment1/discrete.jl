@@ -14,7 +14,8 @@ export Discrete, ℙ, *, /, logsumexp
     logP, which stores a vector of LOG PROBABILITIES as floats
 """
 struct Discrete{T} 
-    ##TODO##
+    logP::Vector{Float64}
+    #initialize a vector of type floats
 end
 
 """
@@ -33,7 +34,7 @@ julia> Discrete([0.0, 0.0, 1.0])
 Discrete{3}([0.0, 0.0, 1.0])
 ```
 """ 
-Discrete(logP::Vector{Float64}) = ##TODO##
+Discrete(logP::Vector{Float64}) = Discrete(logP) # takes logP as argument and use the inner constructor to create a new Discrete struct with logP bound to the given argument
 
 """
     Discrete(n::Int64)
@@ -52,7 +53,7 @@ julia> Discrete(3)
  P = [0.3333333333333333, 0.3333333333333333, 0.3333333333333333]
 ```
 """ 
-Discrete(n::Int64) = ##TODO##
+Discrete(n::Int64) = Discrete(Vector{Float64}(1.0 / n, n)) #create a Discrete object with logP = [0.0 for n times]
 
 """
     *(p::Discrete{T}, q::Float64) -> Discrete{T}
@@ -70,7 +71,10 @@ julia> Discrete([0.0, 2.0, -1.0]) * Discrete([1.0, 0.0, 1.0])
 ```
 """ 
 function Base.:*(p::Discrete{T}, q::Discrete{T})::Discrete{T} where {T}
-    ##TODO##
+    sum_logP::vector{Float64}
+    for i in eachindex(probs)
+        push!(sum_logP, (p.loP[i] + q.logP[i]))
+    Discrete(sum_logP)
 end
 
 """
@@ -89,7 +93,10 @@ julia> Discrete([2.0, 0.0, -1.0]) / Discrete([1.0, 0.0, 1.0])
 ```
 """ 
 function Base.:/(p::Discrete{T}, q::Discrete{T})::Discrete{T} where {T}
-    ##TODO##
+    diff_logP::Vector{Float64}
+    for i in eachindex(probs)
+        push!(diff_logP, (p.logP[i] - q.logP[i]))
+    Discrete(diff_logP)
 end
 
 """
@@ -129,7 +136,7 @@ julia> ℙ(Discrete([0.0, 0.0]))
 ```
 """ 
 function ℙ(p::Discrete)
-    ##TODO##
+    
 end
 
 """
