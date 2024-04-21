@@ -74,6 +74,7 @@ function Base.:*(p::Discrete{T}, q::Discrete{T})::Discrete{T} where {T}
     sum_logP::vector{Float64}
     for i in eachindex(probs)
         push!(sum_logP, (p.loP[i] + q.logP[i]))
+    end
     Discrete(sum_logP)
 end
 
@@ -96,6 +97,7 @@ function Base.:/(p::Discrete{T}, q::Discrete{T})::Discrete{T} where {T}
     diff_logP::Vector{Float64}
     for i in eachindex(probs)
         push!(diff_logP, (p.logP[i] - q.logP[i]))
+    end
     Discrete(diff_logP)
 end
 
@@ -112,6 +114,7 @@ function logsumexp(a::Vector{Float64})
     sum = 0
     for i in eachindex(a)
         sum += exp(a[i]-max)
+    end
     logsum = sum + max
 end
 
@@ -144,8 +147,10 @@ function ℙ(p::Discrete)
     denominator = 0
     for i in eachindex(p.logP)
         denominator += exp(logP[i])
+    end
     for j in eachindex(p.logP)
         push!(d, exp(p.logP[i])/ denominator)
+    end
     return d
 end
 
