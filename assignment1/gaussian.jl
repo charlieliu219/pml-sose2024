@@ -34,9 +34,9 @@ Initializes a Gaussian from mean and variance.
 function Gaussian1DFromMeanVariance(μ, σ2)
     σ2 >= 0 || throw(ErrorException("Variance must be non-negative"))
 
-    ρ = 1 / σ2
-    τ = μ * ρ
-    return Gaussian1D(τ, ρ)
+    rho = 1 / σ2
+    tau = μ * ρ
+    return Gaussian1D(rho, tau)
 end
 
 """
@@ -103,7 +103,10 @@ julia> Gaussian1D() * Gaussian1D()
 ```
 """
 function Base.:*(g1::Gaussian1D, g2::Gaussian1D)
-    ##TODO##
+    tau = g1.tau + g2.tau
+    rho = g1.rho + g2.rho
+
+    return Gaussian1D(tau, rho)
 end
 
 """
@@ -117,7 +120,10 @@ julia> Gaussian1D(0,1) / Gaussian1D(0,0.5)
 ```
 """
 function Base.:/(g1::Gaussian1D, g2::Gaussian1D)
-    ##TODO##
+    tau = g1.tau - g2.tau
+    rho = g1.rho - g2.rho
+
+    return Gaussian1D(tau, rho)
 end
 
 """
@@ -133,8 +139,10 @@ c = 0.28209479177387814
 ```
 """
 function logNormProduct(g1::Gaussian1D, g2::Gaussian1D)
-    ##TODO##
+    
 end
+
+
 
 """
     logNormRatio(g1,g2)
