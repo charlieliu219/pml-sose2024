@@ -13,10 +13,15 @@ Should contain two variables:
 tau and rho, both Floats, to store the natural parameters of the gaussian.
 """
 struct Gaussian1D
-    ##TODO##
+    tau::Float64
+    rho::Float64
 
     # default constructor
-    Gaussian1D(tau, rho) = ##TODO##
+    function Gaussian1D(tau, rho)
+        rho >= 0 || throw(ErrorException("Variance must be non-negative"))
+
+        return new(tau, rho)
+    end
 end
 # Initializes a standard Gaussian 
 Gaussian1D() = Gaussian1D(0, 1)
@@ -26,7 +31,13 @@ Gaussian1D() = Gaussian1D(0, 1)
 
 Initializes a Gaussian from mean and variance.
 """
-Gaussian1DFromMeanVariance(μ, σ2) = ##TODO##
+function Gaussian1DFromMeanVariance(μ, σ2)
+    σ2 >= 0 || throw(ErrorException("Variance must be non-negative"))
+
+    ρ = 1 / σ2
+    τ = μ * ρ
+    return Gaussian1D(τ, ρ)
+end
 
 """
     mean(g)
@@ -40,7 +51,9 @@ julia> mean(Gaussian1DFromMeanVariance(1,2))
 1.0
 ```
 """
-mean(g::Gaussian1D) = ##TODO##
+function mean(g::Gaussian1D)
+    return g.tau / g.rho
+end
 
 """
     variance(g)
@@ -54,7 +67,9 @@ julia> variance(Gaussian1DFromMeanVariance(1,2))
 2.0
 ```
 """
-variance(g::Gaussian1D) = ##TODO##
+function variance(g::Gaussian1D)
+    return 1 / g.rho
+end
 
 
 """
@@ -70,7 +85,12 @@ julia> absdiff(Gaussian1D(0,1),Gaussian1D(0,3))
 1.4142135623730951
 ```
 """
-absdiff(g1::Gaussian1D, g2::Gaussian1D) = ##TODO##
+function absdiff(g1::Gaussian1D, g2::Gaussian1D)
+    tau_diff = abs(g1.tau - g2.tau)
+    rho_diff = sqrt(abs(g1.rho - g2.rho))
+    
+    return max(tau_diff, rho_diff)
+end
 
 """
     *(g1,g2)
