@@ -15,7 +15,6 @@ export Discrete, ℙ, *, /, logsumexp
 """
 struct Discrete{T} 
     logP::Vector{Float64}
-    #initialize a vector of type floats
 end
 
 """
@@ -34,7 +33,7 @@ julia> Discrete([0.0, 0.0, 1.0])
 Discrete{3}([0.0, 0.0, 1.0])
 ```
 """ 
-Discrete(logP::Vector{Float64}) = Discrete(logP) # takes logP as argument and use the inner constructor to create a new Discrete struct with logP bound to the given argument
+Discrete(logP::Vector{Float64}) = Discrete{length(logP)}(logP)
 
 """
     Discrete(n::Int64)
@@ -53,7 +52,10 @@ julia> Discrete(3)
  P = [0.3333333333333333, 0.3333333333333333, 0.3333333333333333]
 ```
 """ 
-Discrete(n::Int64) = Discrete(Vector{Float64}(0, n)) #create a Discrete object with logP = [0 for n times]
+function Discrete(n::Int64)
+    probs = zeros(n) 
+    return Discrete(probs)
+end
 
 """
     *(p::Discrete{T}, q::Float64) -> Discrete{T}
@@ -71,11 +73,17 @@ julia> Discrete([0.0, 2.0, -1.0]) * Discrete([1.0, 0.0, 1.0])
 ```
 """ 
 function Base.:*(p::Discrete{T}, q::Discrete{T})::Discrete{T} where {T}
-    sum_logP::vector{Float64}
-    for i in eachindex(probs)
-        push!(sum_logP, (p.loP[i] + q.logP[i]))
+    length(p.logP) == length(q.logP) || throw(ArgumentError("Lengths of distributions do not match"))
+    
+    sum_logP = Vector{Float64}()
+
+    for i in eachindex(p.logP)
+        logP_p = p.logP[i]
+        logP_q = q.logP[i]
+        push!(sum_logP, logP_p + logP_q)
     end
-    Discrete(sum_logP)
+
+    return Discrete{T}(sum_logP)
 end
 
 """
@@ -94,11 +102,17 @@ julia> Discrete([2.0, 0.0, -1.0]) / Discrete([1.0, 0.0, 1.0])
 ```
 """ 
 function Base.:/(p::Discrete{T}, q::Discrete{T})::Discrete{T} where {T}
-    diff_logP::Vector{Float64}
-    for i in eachindex(probs)
-        push!(diff_logP, (p.logP[i] - q.logP[i]))
+    length(p.logP) == length(q.logP) || throw(ArgumentError("Lengths of distributions do not match"))
+    
+    diff_logP = Vector{Float64}()
+
+    for i in eachindex(p.logP)
+        logP_p = p.logP[i]
+        logP_q = q.logP[i]
+        push!(diff_logP, logP_p - logP_q)
     end
-    Discrete(diff_logP)
+
+    return Discrete{T}(diff_logP)
 end
 
 """
@@ -110,12 +124,11 @@ Should compute the logsumexp function for the respective vector:
 Remember: You can use the . operator to apply functions like exp element wise to each element of an iterable.
 """
 function logsumexp(a::Vector{Float64})
-    max = max(a)
-    sum = 0
-    for i in eachindex(a)
-        sum += exp(a[i]-max)
-    end
-    logsum = sum + max
+    max_a = maximum(a)
+    sum_exp_diff = sum(exp.(a .- max_a))
+    result = max_a + log(sum_exp_diff)
+    
+    return result
 end
 
 """
@@ -143,15 +156,10 @@ julia> ℙ(Discrete([0.0, 0.0]))
 ```
 """ 
 function ℙ(p::Discrete)
-    d::Vector{Float64}(nothing, length(p.logP))
-    denominator = 0
-    for i in eachindex(p.logP)
-        denominator += exp(logP[i])
-    end
-    for j in eachindex(p.logP)
-        push!(d, exp(p.logP[i])/ denominator)
-    end
-    return d
+    unnormalized_probs = exp.(p.logP)
+    normalized_probs = unnormalized_probs / sum(unnormalized_probs)
+    
+    return normalized_probs
 end
 
 """
